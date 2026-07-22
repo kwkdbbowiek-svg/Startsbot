@@ -1,8 +1,11 @@
 # Railway.app uchun Dockerfile
 FROM php:8.2-apache
 
-# Extensions o'rnatish
-RUN docker-php-ext-install pdo pdo_mysql mysqli
+# Extensions o'rnatish (MySQL va PostgreSQL)
+RUN docker-php-ext-install pdo pdo_mysql pdo_pgsql mysqli
+
+# Apache MPM xatosini tuzatish
+RUN a2dismod mpm_event && a2enmod mpm_prefork
 
 # Apache mod_rewrite yoqish
 RUN a2enmod rewrite

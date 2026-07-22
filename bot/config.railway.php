@@ -13,34 +13,47 @@ define('BOT_TOKEN', getenv('BOT_TOKEN') ?: 'YOUR_BOT_TOKEN_HERE');
 define('BOT_USERNAME', getenv('BOT_USERNAME') ?: '@YourBotUsername');
 define('WEBAPP_URL', getenv('WEBAPP_URL') ?: 'https://your-app.railway.app/webapp/index.html');
 
-// Railway MySQL Database
+// Railway MySQL Database yoki Postgres
 // Railway avtomatik DATABASE_URL beradi
 $databaseUrl = getenv('DATABASE_URL');
 
 if ($databaseUrl) {
     // DATABASE_URL parse qilish
-    // Format: mysql://user:pass@host:port/dbname
+    // Format: mysql://user:pass@host:port/dbname yoki postgres://user:pass@host:port/dbname
     $dbParts = parse_url($databaseUrl);
+    
+    // Postgres yoki MySQL aniqlash
+    $dbType = $dbParts['scheme'] ?? 'mysql';
     
     define('DB_HOST', $dbParts['host']);
     define('DB_NAME', ltrim($dbParts['path'], '/'));
     define('DB_USER', $dbParts['user']);
     define('DB_PASS', $dbParts['pass']);
-    define('DB_PORT', $dbParts['port'] ?? 3306);
+    define('DB_PORT', $dbParts['port'] ?? ($dbType === 'postgres' ? 5432 : 3306));
+    define('DB_TYPE', $dbType);
 } else {
     // Manual config (agar DATABASE_URL bo'lmasa)
-    define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
-    define('DB_NAME', getenv('DB_NAME') ?: 'telegram_stars_bot');
-    define('DB_USER', getenv('DB_USER') ?: 'root');
-    define('DB_PASS', getenv('DB_PASS') ?: '');
-    define('DB_PORT', getenv('DB_PORT') ?: 3306);
+    define('DB_HOST', getenv('PGHOST') ?: getenv('DB_HOST') ?: 'localhost');
+    define('DB_NAME', getenv('PGDATABASE') ?: getenv('DB_NAME') ?: 'telegram_stars_bot');
+    define('DB_USER', getenv('PGUSER') ?: getenv('DB_USER') ?: 'root');
+    define('DB_PASS', getenv('PGPASSWORD') ?: getenv('DB_PASS') ?: '');
+    define('DB_PORT', getenv('PGPORT') ?: getenv('DB_PORT') ?: 3306);
+    define('DB_TYPE', 'mysql');
 }
 
 define('DB_CHARSET', 'utf8mb4');
 
 // Database ulanish
 try {
-    $dsn = "mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET;
+    $dbType = defined('DB_TYPE') ? DB_TYPE : 'mysql';
+    
+    if ($dbType === 'postgres' || $dbType === 'pgsql') {
+        // PostgreSQL uchun
+        $dsn = "pgsql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME;
+    } else {
+        // MySQL uchun
+        $dsn = "mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET;
+    }
     
     $pdo = new PDO(
         $dsn,

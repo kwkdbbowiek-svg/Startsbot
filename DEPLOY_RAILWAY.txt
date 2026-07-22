@@ -1,0 +1,45 @@
+===========================================
+RAILWAY GA DEPLOY QILISH - TUZATILGAN
+===========================================
+
+1. GitHub ga push qiling:
+   
+   cd C:\Users\ISHONCH\OneDrive\Desktop\startsbot
+   
+   git add .
+   git commit -m "Fix: Apache MPM error + PostgreSQL support"
+   git push origin main
+
+2. Railway avtomatik redeploy qiladi (2-3 daqiqa)
+
+3. Database schema import qiling:
+
+   Railway dashboard → Postgres → Connect → Query
+
+   schema.pgsql.sql faylni nusxalang va paste qiling
+
+4. Environment Variables tekshiring:
+
+   ✅ DATABASE_URL (Railway avtomatik)
+   ✅ BOT_TOKEN
+   ✅ WEBAPP_URL
+   ✅ Qolganlar
+
+5. Deploy Logs ni kuzating:
+
+   Agar "Starting Container" ko'rinsa - SUCCESS!
+   Agar "AH00534" ko'rinsa - hali xato bor
+
+6. Test qilish:
+
+   https://startsbot-production.up.railway.app/
+
+===========================================
+TUZATILGAN NARSALAR:
+===========================================
+
+✅ Apache MPM xatosi tuzatildi
+✅ PostgreSQL qo'llab-quvvatlash qo'shildi
+✅ MySQL ham ishlaydi
+✅ Dockerfile yangilandi
+✅ config.railway.php yangilandi
