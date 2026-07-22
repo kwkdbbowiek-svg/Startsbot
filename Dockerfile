@@ -1,42 +1,62 @@
-# Railway.app uchun Dockerfile
-FROM php:8.2-apache
+# Railway.app uchun - Nginx + PHP-FPM (Apache muammosiz!)
+FROM php:8.2-fpm
 
-# PostgreSQL client libraries o'rnatish
+# System dependencies
 RUN apt-get update && apt-get install -y \
     libpq-dev \
+    nginx \
+    supervisor \
     && rm -rf /var/lib/apt/lists/*
 
-# Extensions o'rnatish (MySQL va PostgreSQL)
+# PHP Extensions
 RUN docker-php-ext-install pdo pdo_mysql pdo_pgsql mysqli
 
-# Apache MPM to'liq tuzatish
-RUN a2dismod mpm_event mpm_worker 2>/dev/null || true
+# Nginx config
+RUN echo 'server {\n\
+    listen 80;\n\
+    root /var/www/html;\n\
+    index index.php index.html;\n\
+    \n\
+    location / {\n\
+        try_files $uri $uri/ /index.php?$query_string;\n\
+    }\n\
+    \n\
+    location ~ \.php$ {\n\
+        fastcgi_pass 127.0.0.1:9000;\n\
+        fastcgi_index index.php;\n\
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;\n\
+        include fastcgi_params;\n\
+    }\n\
+    \n\
+    location ~ /\.(?!well-known).* {\n\
+        deny all;\n\
+    }\n\
+}' > /etc/nginx/sites-available/default
 
-# mpm_prefork.load faylni to'g'ridan-to'g'ri yozish
-RUN echo 'LoadModule mpm_prefork_module /usr/lib/apache2/modules/mod_mpm_prefork.so' > /etc/apache2/mods-enabled/mpm_prefork.load \
-    && echo '<IfModule mpm_prefork_module>\nStartServers 5\nMinSpareServers 5\nMaxSpareServers 10\nMaxRequestWorkers 150\nMaxConnectionsPerChild 0\n</IfModule>' > /etc/apache2/mods-enabled/mpm_prefork.conf
+# Supervisor config
+RUN echo '[supervisord]\n\
+nodaemon=true\n\
+\n\
+[program:php-fpm]\n\
+command=php-fpm -F\n\
+autostart=true\n\
+autorestart=true\n\
+\n\
+[program:nginx]\n\
+command=nginx -g "daemon off;"\n\
+autostart=true\n\
+autorestart=true\n\
+' > /etc/supervisor/conf.d/supervisord.conf
 
-# Apache mod_rewrite yoqish
-RUN a2enmod rewrite
-
-# Apache konfiguratsiya
-RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
-
-# Ishchi katalog
 WORKDIR /var/www/html
-
-# Fayllarni nusxalash
 COPY . /var/www/html/
 
-# Ruxsatlar
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html \
     && mkdir -p bot/logs webapp/uploads/receipts \
     && chmod 750 bot/logs webapp/uploads/receipts
 
-# Apache portni sozlash (Railway uchun)
-ENV PORT=80
 EXPOSE 80
 
-# Apache ishga tushirish
-CMD ["apache2-foreground"]
+# Supervisor binary path tekshirish va run
+CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
