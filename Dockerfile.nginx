@@ -1,0 +1,39 @@
+# Railway.app uchun - Nginx + PHP-FPM (Apache xatosiz)
+FROM php:8.2-fpm
+
+# System dependencies
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    nginx \
+    && rm -rf /var/lib/apt/lists/*
+
+# PHP Extensions
+RUN docker-php-ext-install pdo pdo_mysql pdo_pgsql mysqli
+
+# Nginx konfiguratsiya
+RUN rm /etc/nginx/sites-enabled/default
+COPY nginx.conf /etc/nginx/sites-available/default
+RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+
+# Ishchi katalog
+WORKDIR /var/www/html
+
+# Fayllarni nusxalash
+COPY . /var/www/html/
+
+# Ruxsatlar
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html \
+    && mkdir -p bot/logs webapp/uploads/receipts \
+    && chmod 750 bot/logs webapp/uploads/receipts
+
+# Port
+EXPOSE 80
+
+# Start script yaratish
+RUN echo '#!/bin/bash\n\
+php-fpm -D\n\
+nginx -g "daemon off;"\n\
+' > /start.sh && chmod +x /start.sh
+
+CMD ["/start.sh"]

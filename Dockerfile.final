@@ -1,0 +1,60 @@
+# Railway.app uchun - Apache xatosiz versiya
+# PHP-FPM + Nginx ishlatadi
+
+FROM php:8.2-fpm-alpine
+
+# System packages
+RUN apk add --no-cache \
+    postgresql-dev \
+    nginx \
+    supervisor
+
+# PHP Extensions
+RUN docker-php-ext-install pdo pdo_mysql pdo_pgsql
+
+# Nginx config
+COPY <<EOF /etc/nginx/http.d/default.conf
+server {
+    listen 80;
+    root /var/www/html;
+    index index.php index.html;
+    
+    location / {
+        try_files \$uri \$uri/ /index.php?\$query_string;
+    }
+    
+    location ~ \.php$ {
+        fastcgi_pass 127.0.0.1:9000;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+        include fastcgi_params;
+    }
+}
+EOF
+
+# Supervisor config
+COPY <<EOF /etc/supervisor/conf.d/supervisord.conf
+[supervisord]
+nodaemon=true
+
+[program:php-fpm]
+command=php-fpm -F
+autostart=true
+autorestart=true
+
+[program:nginx]
+command=nginx -g 'daemon off;'
+autostart=true
+autorestart=true
+EOF
+
+WORKDIR /var/www/html
+COPY . /var/www/html/
+
+RUN chown -R www-data:www-data /var/www/html \
+    && mkdir -p bot/logs webapp/uploads/receipts \
+    && chmod 750 bot/logs webapp/uploads/receipts
+
+EXPOSE 80
+
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
