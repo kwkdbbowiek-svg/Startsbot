@@ -1,0 +1,39 @@
+# Environment Configuration (MUHIM!)
+.env
+bot/config.php
+
+# Logs
+bot/logs/*.log
+*.log
+
+# Uploads
+webapp/uploads/
+uploads/
+
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary
+*.tmp
+*.bak
+*.cache
+
+# Vendor (agar Composer ishlatilsa)
+vendor/
+
+# Environment
+.env
+.env.local
+
+# Database backups
+*.sql
+backup_*.sql

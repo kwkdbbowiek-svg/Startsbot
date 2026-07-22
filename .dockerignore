@@ -1,0 +1,32 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+README.md
+INSTALLATION.md
+QUICKSTART.md
+FEATURES.md
+PROJECT_STRUCTURE.md
+UPLOAD_GUIDE.md
+QUICK_DEPLOY.md
+
+# IDE
+.vscode
+.idea
+
+# Logs
+bot/logs/*.log
+*.log
+
+# Temporary
+*.tmp
+*.bak
+
+# Config examples
+bot/config.example.php
+
+# Deployment files
+deploy.bat
+filezilla_settings.xml

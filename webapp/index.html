@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Telegram Stars Shop</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <!-- Animatsiyali yulduzchalar orqa fon -->
+    <div class="stars-background" id="starsBackground"></div>
+    
+    <!-- Tepa qismidan pastga tushuvchi nur effekti -->
+    <div class="top-glow" id="topGlow"></div>
+    
+    <!-- Obuna tekshirish modali -->
+    <div class="modal" id="subscriptionModal">
+        <div class="modal-content neon-border">
+            <h2 class="neon-text">🔔 Obuna bo'ling</h2>
+            <p>Botdan foydalanish uchun kanalimizga obuna bo'lishingiz kerak</p>
+            <a href="" id="channelLink" target="_blank" class="channel-link neon-text"></a>
+            <button class="btn-neon btn-green" id="checkSubscriptionBtn">Tekshirish</button>
+        </div>
+    </div>
+    
+    <!-- To'lov modali -->
+    <div class="modal" id="paymentModal">
+        <div class="modal-content neon-border">
+            <span class="close-modal" id="closePaymentModal">&times;</span>
+            <h2 class="neon-text">💳 Hisobni to'ldirish</h2>
+            
+            <div class="payment-methods">
+                <button class="payment-method-btn" data-method="click">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 30'%3E%3Ctext x='10' y='20' font-size='18' fill='%2300ff00'%3EClick%3C/text%3E%3C/svg%3E" alt="Click">
+                    Click
+                </button>
+                <button class="payment-method-btn" data-method="payme">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 30'%3E%3Ctext x='10' y='20' font-size='18' fill='%230099ff'%3EPayme%3C/text%3E%3C/svg%3E" alt="Payme">
+                    Payme
+                </button>
+                <button class="payment-method-btn" data-method="manual">
+                    📝 Manual
+                </button>
+            </div>
+            
+            <!-- Manual to'lov form -->
+            <div id="manualPaymentForm" style="display: none;">
+                <div class="form-group">
+                    <label>💰 Miqdor (UZS)</label>
+                    <input type="number" id="manualAmount" class="input-neon" placeholder="10000" min="1000">
+                </div>
+                <div class="card-info neon-border">
+                    <p><strong>Karta raqami:</strong> <span id="cardNumber">Loading...</span></p>
+                    <p><strong>Karta egasi:</strong> <span id="cardHolder">Loading...</span></p>
+                </div>
+                <div class="form-group">
+                    <label>📄 Chek faylini yuklang</label>
+                    <input type="file" id="receiptFile" accept="image/*,.pdf">
+                </div>
+                <button class="btn-neon btn-green" id="submitManualPayment">Yuborish</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Asosiy container -->
+    <div class="container" id="mainContainer">
+        <!-- Header -->
+        <header class="header">
+            <div class="profile-section">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%232a2a2a' stroke='%2300ff00' stroke-width='3'/%3E%3Ctext x='50' y='60' font-size='40' text-anchor='middle' fill='%2300ff00'%3E👤%3C/text%3E%3C/svg%3E" 
+                     alt="Profile" class="profile-pic" id="profilePic">
+                <div class="profile-info">
+                    <h3 class="neon-text" id="userName">Loading...</h3>
+                    <div class="balance-box">
+                        <span id="userBalance">0 UZS</span>
+                        <button class="add-balance-btn" id="addBalanceBtn">+</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Content area -->
+        <main class="content" id="contentArea">
+            <!-- Xaridlar bo'limi (default) -->
+            <div class="section" id="purchasesSection">
+                <h2 class="section-title neon-text">🛒 Stars Xarid Qilish</h2>
+                
+                <!-- Qo'lda belgilash kartasi -->
+                <div class="card neon-border">
+                    <div class="card-header">
+                        <h3>✍️ Qo'lda belgilash</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>⭐ Stars miqdori</label>
+                            <input type="number" id="customStarsAmount" class="input-neon" 
+                                   placeholder="50-10000000" min="50" max="10000000">
+                            <small>Min: 50, Max: 10,000,000</small>
+                        </div>
+                        <div class="form-group">
+                            <label>👤 Username (@ belgisiz)</label>
+                            <input type="text" id="customUsername" class="input-neon" 
+                                   placeholder="username">
+                        </div>
+                        <div class="price-display">
+                            <span>Narx:</span>
+                            <span class="price-value neon-text" id="customPrice">0 UZS</span>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn-neon btn-red" id="cancelCustomBtn">Bekor qilish</button>
+                            <button class="btn-neon btn-green" id="confirmCustomBtn">Tasdiqlash</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tayyor paketlar -->
+                <div id="packagesContainer">
+                    <!-- Dinamik ravishda JS orqali yuklanadi -->
+                </div>
+            </div>
+            
+            <!-- Bosh menyu bo'limi -->
+            <div class="section" id="homeSection" style="display: none;">
+                <h2 class="section-title neon-text">🏠 Bosh Menyu</h2>
+                
+                <div class="info-card neon-border">
+                    <h3>ℹ️ Bot haqida</h3>
+                    <p>Telegram Stars arzon narxlarda, tez va xavfsiz!</p>
+                </div>
+                
+                <div class="info-card neon-border">
+                    <h3>💲 Joriy narxlar</h3>
+                    <p>1 Star = <span id="currentRate" class="neon-text">140</span> UZS</p>
+                </div>
+                
+                <div class="info-card neon-border">
+                    <h3>📞 Bog'lanish</h3>
+                    <p>Savollar uchun admin bilan bog'laning</p>
+                    <button class="btn-neon btn-blue" id="contactAdminBtn">Admin</button>
+                </div>
+            </div>
+            
+            <!-- Profil bo'limi -->
+            <div class="section" id="profileSection" style="display: none;">
+                <h2 class="section-title neon-text">👤 Profil</h2>
+                
+                <div class="profile-card neon-border">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%232a2a2a' stroke='%2300ff00' stroke-width='3'/%3E%3Ctext x='50' y='60' font-size='40' text-anchor='middle' fill='%2300ff00'%3E👤%3C/text%3E%3C/svg%3E" 
+                         alt="Profile" class="profile-pic-large">
+                    <h3 class="neon-text" id="profileName">Loading...</h3>
+                    <p id="profileUsername">@username</p>
+                </div>
+                
+                <div class="profile-actions">
+                    <button class="action-btn neon-border" id="chatWithAdminBtn">
+                        <span class="icon">💬</span>
+                        <span>Admin bilan muloqot</span>
+                    </button>
+                    <button class="action-btn neon-border" id="myAccountBtn">
+                        <span class="icon">💰</span>
+                        <span>Hisobim</span>
+                    </button>
+                    <button class="action-btn neon-border" id="purchaseHistoryBtn">
+                        <span class="icon">📜</span>
+                        <span>Xaridlar tarixi</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-btn" data-section="purchases">
+                <span class="nav-icon">🛒</span>
+                <span class="nav-label">Xaridlar</span>
+            </button>
+            <button class="nav-btn active" data-section="home">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Bosh menyu</span>
+            </button>
+            <button class="nav-btn" data-section="profile">
+                <span class="nav-icon">👤</span>
+                <span class="nav-label">Profil</span>
+            </button>
+        </nav>
+    </div>
+    
+    <!-- Loading spinner -->
+    <div class="loading" id="loadingSpinner" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+    
+    <script src="js/animations.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
