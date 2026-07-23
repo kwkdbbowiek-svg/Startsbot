@@ -11,6 +11,20 @@ RUN apt-get update && apt-get install -y \
 # PHP Extensions
 RUN docker-php-ext-install pdo pdo_mysql pdo_pgsql mysqli
 
+# PHP-FPM konfiguratsiyasini sozlash
+RUN echo '[www]' > /usr/local/etc/php-fpm.d/www.conf && \
+    echo 'user = www-data' >> /usr/local/etc/php-fpm.d/www.conf && \
+    echo 'group = www-data' >> /usr/local/etc/php-fpm.d/www.conf && \
+    echo 'listen = 127.0.0.1:9000' >> /usr/local/etc/php-fpm.d/www.conf && \
+    echo 'listen.owner = www-data' >> /usr/local/etc/php-fpm.d/www.conf && \
+    echo 'listen.group = www-data' >> /usr/local/etc/php-fpm.d/www.conf && \
+    echo 'pm = dynamic' >> /usr/local/etc/php-fpm.d/www.conf && \
+    echo 'pm.max_children = 5' >> /usr/local/etc/php-fpm.d/www.conf && \
+    echo 'pm.start_servers = 2' >> /usr/local/etc/php-fpm.d/www.conf && \
+    echo 'pm.min_spare_servers = 1' >> /usr/local/etc/php-fpm.d/www.conf && \
+    echo 'pm.max_spare_servers = 3' >> /usr/local/etc/php-fpm.d/www.conf && \
+    echo 'catch_workers_output = yes' >> /usr/local/etc/php-fpm.d/www.conf
+
 # Nginx config
 RUN echo 'server {\n\
     listen 80;\n\
@@ -42,14 +56,22 @@ RUN echo '[supervisord]\n\
 nodaemon=true\n\
 \n\
 [program:php-fpm]\n\
-command=php-fpm -F\n\
+command=php-fpm -F -R\n\
 autostart=true\n\
 autorestart=true\n\
+stdout_logfile=/dev/stdout\n\
+stdout_logfile_maxbytes=0\n\
+stderr_logfile=/dev/stderr\n\
+stderr_logfile_maxbytes=0\n\
 \n\
 [program:nginx]\n\
 command=nginx -g "daemon off;"\n\
 autostart=true\n\
 autorestart=true\n\
+stdout_logfile=/dev/stdout\n\
+stdout_logfile_maxbytes=0\n\
+stderr_logfile=/dev/stderr\n\
+stderr_logfile_maxbytes=0\n\
 ' > /etc/supervisor/conf.d/supervisord.conf
 
 WORKDIR /var/www/html
