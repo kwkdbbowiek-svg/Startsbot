@@ -22,9 +22,13 @@ RUN echo 'server {\n\
     }\n\
     \n\
     location ~ \.php$ {\n\
+        try_files $uri =404;\n\
         fastcgi_pass 127.0.0.1:9000;\n\
         fastcgi_index index.php;\n\
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;\n\
+        fastcgi_read_timeout 300;\n\
+        fastcgi_connect_timeout 300;\n\
+        fastcgi_send_timeout 300;\n\
         include fastcgi_params;\n\
     }\n\
     \n\
