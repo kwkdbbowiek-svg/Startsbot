@@ -6,7 +6,7 @@
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
-require_once '../../../bot/config.php';
+require_once __DIR__ . '/../../../bot/config_loader.php';
 
 try {
     $starsRate = getSetting('stars_rate', '140');

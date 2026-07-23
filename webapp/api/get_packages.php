@@ -6,7 +6,7 @@
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
-require_once '../../../bot/config.php';
+require_once __DIR__ . '/../../../bot/config_loader.php';
 
 try {
     $stmt = $pdo->query("SELECT id, stars_amount FROM stars_packages WHERE is_active = 1 ORDER BY sort_order ASC, stars_amount ASC");

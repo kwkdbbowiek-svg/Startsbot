@@ -4,7 +4,7 @@
  */
 
 session_start();
-require_once '../bot/config.php';
+require_once __DIR__ . '/../bot/config_loader.php';
 
 // Admin autentifikatsiyasini tekshirish (oddiy versiya)
 // Production da to'liq autentifikatsiya tizimini qo'shing

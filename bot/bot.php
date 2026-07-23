@@ -5,7 +5,12 @@
  * Bu fayl botning asosiy komandalarini va xabarlarni qayta ishlaydi
  */
 
-require_once 'config.php';
+// Railway yoki local config yuklash
+if (getenv('RAILWAY_ENVIRONMENT')) {
+    require_once 'config.railway.php';
+} else {
+    require_once 'config.php';
+}
 
 // Webhook dan kelgan ma'lumotni olish
 $content = file_get_contents("php://input");
