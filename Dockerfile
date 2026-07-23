@@ -9,11 +9,22 @@ RUN apt-get update && apt-get install -y \
 # PHP Extensions
 RUN docker-php-ext-install pdo pdo_mysql pdo_pgsql mysqli
 
-# Apache MPM muammosini tuzatish
-RUN a2dismod mpm_event && a2enmod mpm_prefork
+# Apache MPM muammosini to'liq tuzatish - fayllarni o'chirish
+RUN rm -f /etc/apache2/mods-enabled/mpm_event.conf \
+    /etc/apache2/mods-enabled/mpm_event.load \
+    /etc/apache2/mods-enabled/mpm_worker.conf \
+    /etc/apache2/mods-enabled/mpm_worker.load
+
+# mpm_prefork'ni yoqish
+RUN if [ ! -f /etc/apache2/mods-enabled/mpm_prefork.load ]; then \
+        ln -s /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf && \
+        ln -s /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load; \
+    fi
 
 # Apache mod_rewrite yoqish
-RUN a2enmod rewrite
+RUN if [ ! -f /etc/apache2/mods-enabled/rewrite.load ]; then \
+        ln -s /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/rewrite.load; \
+    fi
 
 # Apache konfiguratsiyasi
 RUN echo '<VirtualHost *:80>\n\
