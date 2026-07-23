@@ -9,6 +9,9 @@ RUN apt-get update && apt-get install -y \
 # PHP Extensions
 RUN docker-php-ext-install pdo pdo_mysql pdo_pgsql mysqli
 
+# Apache MPM muammosini tuzatish
+RUN a2dismod mpm_event && a2enmod mpm_prefork
+
 # Apache mod_rewrite yoqish
 RUN a2enmod rewrite
 
